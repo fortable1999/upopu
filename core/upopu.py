@@ -1,5 +1,5 @@
 import select, socket, sys, struct, re
-from upopu.core.utils import addr2byte
+from upopu.core.utils import addr2byte, byte2addr
 from upopu.core.exceptions import *
 
 # CLIENT STATUS
@@ -25,15 +25,15 @@ class UPOPUServer(object):
 			data, addr = self.svr_sock.recvfrom(32)
 			key = data.strip()
 			# print("Client connected from %s:%d, have sharing key " % addr, key)
-			svr_sock.sendto(b"ok" + key, addr)
+			self.svr_sock.sendto(b"ok" + key, addr)
 			data, addr = self.svr_sock.recvfrom(2)
 			if data != b'ok':
 				continue
 			# print("request reveiced for with sharing key: ", key)
 			try:
-				a, b = keyset[key], addr
-				svr_sock.sendto(addr2byte(a), b)
-				svr_sock.sendto(addr2byte(b), a)
+				a, b = self.keyset[key], addr
+				self.svr_sock.sendto(addr2byte(a), b)
+				self.svr_sock.sendto(addr2byte(b), a)
 				# print("%s %s linked" %(str(a), str(b)), key)
 				del self.keyset[key]
 				# print("sharing key %s released" % key)
@@ -66,10 +66,10 @@ class UPOPUSocket(object):
 		if data != b"ok" + bytes(self.key, 'utf-8'):
 			raise ServerConnectFailedException
 
-		self._sock.sendto(b'ok', monkey)
+		self._sock.sendto(b'ok', (self.rmt_svr_host, self.rmt_svr_port))
 		data, addr = self._sock.recvfrom(6)
 		self.target = byte2addr(data)
-		self._sock.sendto(b'hello', target)
+		self._sock.sendto(b'hello', self.target)
 		if self._sock.recv(6) != b'hello':
 			raise SayHelloException
 		return CLIENT_CONNECTED
