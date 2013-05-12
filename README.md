@@ -11,12 +11,14 @@ example. You'd like save some message to a file,
 and receive these from the same file, but different machine.
 Do like this:
 
-`(from the first host)`
-`client1 $ echo "Hello! from client1" | dev/ufd.py`
+<pre><code>
+(from the first host)
+client1 $ echo "Hello! from client1" | dev/ufd.py
+</code></pre>
 
-`(from the other host)`
-`client2 $ dev/ufd.py`
-`Hello! from client1`
+(from the other host)
+client2 $ dev/ufd.py
+Hello! from client1
 
 * use upopu default server
 upopu has a buit-in server.
