@@ -11,7 +11,8 @@ example. You'd like save some message to a file,
 and receive these from the same file, but different machine.
 Do like this:
 
-<pre><code>	(from the first host)
+<pre><code>    
+	(from the first host)
 	client1 $ echo "Hello! from client1" | dev/ufd.py
 
 	(from the other host)
@@ -24,7 +25,8 @@ upopu has a buit-in server.
 It listens on port 1414, receive all connections from clients,
 and paring them.
 
-<pre><code>	(to start the server)
+<pre><code>	   
+	(to start the server)
 	$ bin/upopud.py
 </code></pre>
 
@@ -35,7 +37,6 @@ start server:
 	Python3.3
 	>>> from upopu.core.upopu import UPOPUServer
 	>>> UPOPUServer(51234).serve_forever()
-
 </code></pre>
 
 * client side:
