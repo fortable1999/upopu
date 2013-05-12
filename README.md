@@ -1,6 +1,9 @@
 UPOPU is a decentralized server network.
 Under development.
 
+Coder: Meng Zhao
+May, 2013
+
 Usage:
 
 * use upopu file I/O
@@ -8,12 +11,12 @@ example. You'd like save some message to a file,
 and receive these from the same file, but different machine.
 Do like this:
 
-	(from the first host)
-	client1 $ echo "Hello! from client1" | dev/ufd.py
+`(from the first host)`
+`client1 $ echo "Hello! from client1" | dev/ufd.py`
 
-	(from the other host)
-	client2 $ dev/ufd.py
-	Hello! from client1
+`(from the other host)`
+`client2 $ dev/ufd.py`
+`Hello! from client1`
 
 * use upopu default server
 upopu has a buit-in server.
@@ -49,5 +52,4 @@ connect to other client:
 	(client 2 get messages from client1)
 	>>> for line in sock.readlines(): print(i)
 	b'hello! I am client1'
-
 
