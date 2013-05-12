@@ -3,3 +3,9 @@ class ServerConnectFailedException(Exception):
 	
 class SayHelloException(Exception):
 	pass
+
+class LengthMessageException(Exception):
+	pass
+
+class DataChecksumException(Exception):
+	pass

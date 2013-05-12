@@ -1,6 +1,7 @@
 import select, socket, sys, struct, re
-from upopu.core.utils import addr2byte, byte2addr
+from upopu.core.utils import addr2byte, byte2addr, text2seq, seq2text
 from upopu.core.exceptions import *
+from upopu.core.window import windowsender, windowreceiver
 
 # CLIENT STATUS
 CLIENT_UNINITIALIZED = 0
@@ -82,10 +83,46 @@ class UPOPUSocket(object):
 		return upopusock
 
 	def close(self):
+		# send some closing message?
 		self._sock.close()
 
+	# send & recv method active like a socket
+	def send(self, data):
+		if type(data) == str: data = bytes(data, 'utf-8')
+		return windowsender(self._sock, data, target = self.target)
+		# return self._sock.sendto(text, self.target)
+
+	def recv(self):
+		return windowreceiver(self._sock, self.target)
+		# return self._sock.recv(size)
+
+	# def sendall(self, full_data):
+	# 	data_seq = text2seq(full_data)
+
+	# 	seq_length = data_seq[0]
+	# 	length_info = struct.pack("HH", 0, seq_length)
+	# 	self.send_and_wait_response(length_info, lambda x: 
+	# 			x == b'ok' + struct.pack("H", seq_length))
+
+	# def recvall(self):
+	# 	data_seq = {}
+	# 	init_msg = self.recv()
+	# 	if struct.unpack("H",init_msg[:2]) != b'0':
+	# 		raise LengthMessageException
+	# 	data_length, = struct.unpack("H", init_msg[-2:])
+	# 	data_seq = {i : None for i in range(1, data_length + 1)}
+	# 	while True:
+	# 		rl, wl, _ = select.select([self._sock], [], []) 
+	# 		for r in rl:
+	# 			data = r.recv(1024)
+	# 			idx = struct.unpack("H", data[:2])
+	# 			data_seq[idx] = data[2:]
+	# 			self.send(b"OK")
+
+
+	# read, write, readlines, writelines methods works like a file
 	def readline(self):
-		data = self._sock.recv(1024)
+		data = self.recv()
 		return data
 
 	def readlines(self):
@@ -93,15 +130,63 @@ class UPOPUSocket(object):
 		self._sock.setblocking(0)
 		while True:
 			try:
-				data, addr = self._sock.recvfrom(1024)
+				data = self.recv()
 				yield data
 			except BlockingIOError: 
 				self._sock.setblocking(1)
 				raise StopIteration
+	
+	# def writeline(self, data_seq):
+	# 	pass
 
-	def write(self, bytedata):
-		self._sock.sendto(bytedata, self.target)
+	# def read(self, size):
+	# 	pass
+
+	def write(self, data):
+		self.send(data)
+		# self._sock.sendto(bytedata, self.target)
 
 	def fileno(self):
 		return self._sock.fileno()
+
+	# def send_and_wait_response(self, data, response_ok, exception = None):
+	# 	self.send(data)
+	# 	response = self.recv()
+	# 	while not response_ok(response):
+	# 		if not exception:
+	# 			raise exception
+	# 		else:
+	# 			self.send(data)
+	# 	return True
+
+	# def send_seq_and_wait_response(self, data_seq, response_ok, exception = None, windows_size = 8, timeout = 5):
+	# 	self._sock.setblocking(0)
+	# 	seq_length = data_seq[0]
+	# 	windows_index = range(1, windows_size + 1)
+	# 	data_status = {i:"WT" for i in range(1, seq_length + 1)}
+	# 	
+	# 	while True:
+	# 		rl, wl, _ = select.select([self._sock],[self._sock],[], timeout)
+	# 		if len(rl) == 0 and len(wl) == 0):
+	# 			# udp packet timeout
+	# 			for idx in windows_index:
+	# 				if data_status[idx] == "WR":
+	# 					self.send(data_seq[idx])
+	# 		for r in rl:
+	# 			data = self.recv()
+	# 			if data[:4] == b'RV':
+	# 				seqid, =  struct.unpack(data[:-2])
+	# 				data_status[seqid] = "OK"
+	# 			if filter(lambda x: data_status[x] != "OK", windows_index) == 0:
+	# 				if windows_index[windows_size - 1] == seq_length:
+	# 					return 0
+	# 				windows_index = map(lambda x: x+1, windows_index)
+	# 		for w in wl:
+	# 			for idx in windows_index:
+	# 				if data_status[idx] == "WT":
+	# 					self.send(data_seq[idx])
+	# 					data_status[idx] = "WR"
+	# 	self._sock.setblocking(1)
+
+
 

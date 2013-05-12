@@ -1,4 +1,6 @@
-form upopu.core.upopu import UPOPUServer
+#!/usr/bin/env python3.3
+
+from upopu import UServer
 
 if __name__ == '__main__':
-	UPOPUServer(51515).serve_forever()
+	UServer(1414).serve_forever()

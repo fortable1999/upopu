@@ -20,3 +20,20 @@ def addr2byte(addr):
 	b = socket.inet_aton(host)
 	b += struct.pack("H", port)
 	return b
+
+def text2seq(text):
+	if type(text) == str: text = bytes(text, 'utf-8')
+	seq = {}
+	seq_length = int(len(text) / 1022 + 1)
+	seq[0] = seq_length
+	for i in range(1, seq_length + 1):
+		seq[i] = text[(i-1) *1022 : i * 1022]
+	return seq
+
+def seq2text(seq):
+	text = b""
+	seq_length = seq[0]
+	for i in range(1, seq_length + 1):
+		text += seq[i]
+	return text
+
