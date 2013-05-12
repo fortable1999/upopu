@@ -27,7 +27,7 @@ and paring them.
 
 <pre><code>	   
 	(to start the server)
-	$ bin/upopud.py
+	$ bin/upopud
 </code></pre>
 
 * server side:
