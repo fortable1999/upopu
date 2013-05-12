@@ -1,8 +1,9 @@
+#UPOPU
 UPOPU is a decentralized server network.
 Under development.
 
 Usage:
-1. Use as a file for I/O:
+##Use as a file for I/O:
 
 example, pip a string from client1 use the file interface,
 and get the output from the client2:
@@ -12,22 +13,23 @@ and get the output from the client2:
 	client2 $ dev/ufd.py
 	Hello from client1
 
-2. Use the default 
+##Use the default 
 	default server will work on 1414 port on this machine,
 	it will receiving all income connections and get a pair for their key.
 	
 	$ bin/upopud.py
 	(Press ctrl-c to terminate the server)
 
-3. Programming usage
-3.1 server side:
+##Programming usage
+
+###server side:
   start server:
 
 	Python3.3
 	>>> from upopu import UServer
 	>>> UServer(1414).serve_forever()
 
-3.2 client side:
+###client side:
   connect to other client:
 
 	Python3.3(from client1)
