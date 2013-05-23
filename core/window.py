@@ -1,6 +1,6 @@
 import socket, select, struct, hashlib
 from upopu.core.exceptions import *
-def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_size = 1024):
+def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_size = 1024, debug = False):
 	# pkg[0]: "0<seq length>"
 	# pkg[i]: "<i><data>"
 	# 1. CLIENT A "0SD<SEQ_LENGTH>" -> CLIENT B
@@ -17,6 +17,8 @@ def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_s
 	for i in range(1, seq_length + 1):
 		data_seq[i] = struct.pack("H", i) + data[(i-1) * (pkg_size - 2): i * (pkg_size - 2)]
 	
+	if debug: print("%d packet to be sent" % seq_length)
+	
 	sock.settimeout(timeout)
 	sock.sendto(data_seq[0], target)
 	while True:
@@ -32,6 +34,8 @@ def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_s
 			continue
 		data_seq_status[0] = "SENDOK"
 		break
+	
+	if debug: print("tunnel initialization OK")
 
 	window_index = range(1, min(windows_size + 1, seq_length + 1))
 
@@ -62,6 +66,9 @@ def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_s
 			pkg_data = pkg[2:]
 			if pkg_idx in window_index:
 				data_seq_status[pkg_idx] = "SENDOK"
+
+				if debug: print("CONFIRM. %d/%d OK" % (len(list(filter(lambda x: x == 'SENDOK', data_seq_status))), len(data_seq_status)))
+
 				if pkg_idx == min(window_index):
 					window_index = range(min(window_index[0] + 1, seq_length + 1), min(window_index[-1] + 2,seq_length + 1))
 					if len(window_index) == 1:
@@ -69,7 +76,7 @@ def windowsender(sock, data, target = None, timeout = 5, windows_size = 8, pkg_s
 						return seq_length
 					writable = [sock]
 
-def windowreceiver(sock, target = None, pkg_size = 1024):
+def windowreceiver(sock, target = None, pkg_size = 1024, debug = False):
 	data_seq = {}
 	while True:
 		pkg, addr = sock.recvfrom(pkg_size)
@@ -77,6 +84,7 @@ def windowreceiver(sock, target = None, pkg_size = 1024):
 			target = addr
 		if not target and target != addr:
 			continue
+		if debug: print("RECV: from %s" % (str(addr)))
 		pkg_idx, = struct.unpack("H", pkg[:2])
 		seq_length, = struct.unpack("H", pkg[-2:])
 		if pkg_idx == 0:

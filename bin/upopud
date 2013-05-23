@@ -2,5 +2,7 @@
 
 from upopu import UServer
 
+DEBUG = True
+
 if __name__ == '__main__':
-	UServer(1414).serve_forever()
+	UServer(1414, debug = DEBUG).serve_forever()

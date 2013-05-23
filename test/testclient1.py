@@ -1,7 +1,9 @@
 from upopu import USocket
 
-sock = USocket('localhost', 51000, "testkey")
+sock = USocket('upopu-root.org', 1414, "testkey", debug = True)
 sock.connect()
-print(sock.send("Hello! from client 1"))
+fp = open('testpng.png', 'rb')
+data = fp.read()
+print(sock.send(data))
 print(sock.recv())
 
